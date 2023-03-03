@@ -53,8 +53,8 @@ A set of evaluation metrics
     ROC (Receiver Operating Characteristic) Curve tells us about how good the model can distinguish between two things (e.g If a patient has a disease or no). Better models can accurately distinguish between the two. Whereas, a poor model will have difficulties in distinguishing between the two
     
 ## Platform
-- The project will be done using AWS Sagemeker studio.
-- Data Will be stored in Amazon S3 cloud storage
-- The endpoint will be deployed in Amazon cloud 
+ - The project will be done using AWS Sagemeker studio.
+ - Data Will be stored in Amazon S3 cloud storage
+ - The endpoint will be deployed in Amazon cloud 
 
 ## References
