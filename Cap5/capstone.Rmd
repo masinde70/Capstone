@@ -4,6 +4,7 @@ author: "Masinde Mtesigwa"
 date: "2023-03-01"
 output: pdf_document
 toc: true
+bibliography: citations.bib
 ---
 
 \newpage
@@ -31,30 +32,17 @@ The objective of the  project is to diagnostically predict whether or not a pati
 This dataset is originally from the National Institute of Diabetes and Digestive and Kidney Diseases. The objective of the dataset is to diagnostically predict whether or not a patient has diabetes, based on certain diagnostic measurements included in the dataset. Several constraints were placed on the selection of these instances from a larger database. In particular, all patients here are females at least 21 years old of Pima Indian heritage.
 
 ### Content
-The datasets consists of several medical predictor variables and one target variable, Outcome. Predictor variables includes the number of pregnancies the patient has had, their BMI, insulin level, age, and so on.
+The datasets consists of several medical predictor variables and one target variable, Outcome. Predictor variables includes the number of pregnancies the patient has had, their BMI, insulin level, age, and so on[@ehr].
 
-### Acknowledgements
-Smith, J.W., Everhart, J.E., Dickson, W.C., Knowler, W.C., & Johannes, R.S. (1988). Using the ADAP learning algorithm to forecast the onset of diabetes mellitus. In Proceedings of the Symposium on Computer Applications and Medical Care (pp. 261--265). IEEE Computer Society Press.
-
-
-@misc{hw1-machine-learning-for-ehr,
-    author = {Aamna},
-    title = {HW1 Machine Learning for EHR},
-    publisher = {Kaggle},
-    year = {2023},
-    url = {https://kaggle.com/competitions/hw1-machine-learning-for-ehr}
-}
-
-ref:https://www.kaggle.com/datasets/uciml/pima-indians-diabetes-database
 
 ## Project Statement
-
 Can you build a machine learning model to accurately predict whether or not the patients in the dataset have diabetes or not?
 
 
 ## Benchmark model
-The model going to be is used in this project is Autogluon or Classification
-algorithm since it is a classification problem.
+The model going to be is used in this project is Autogluon. The reason for using autogluon is  because nany models are better than few and hyperparemeter tuning enhances learning. There is no train split manually the model does that internally. The model handles missing values.
+
+Since it is  Classification problem, the next model to use is classification models.
 
 
 ## Metrics
@@ -65,9 +53,9 @@ A set of evaluation metrics
  -  ROC - AUC
     ROC (Receiver Operating Characteristic) Curve tells us about how good the model can distinguish between two things (e.g If a patient has a disease or no). Better models can accurately distinguish between the two. Whereas, a poor model will have difficulties in distinguishing between the two
     
-## Plarform
+## Platform
 - The project will be done using AWS Sagemeker studio.
 - Data Will be stored in Amazon S3 cloud storage
 - The endpoint will be deployed in Amazon cloud 
 
- - Data Storage 
+## References
