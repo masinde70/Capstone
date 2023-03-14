@@ -64,7 +64,12 @@ The datasets consists of several medical predictor variables and one target vari
 
 ## Problem Statement
 
-Can you build a machine learning model to accurately predict whether or not the patients in the dataset have diabetes or not?
+Diabetes mellitus, or simply diabetes, is a leading non-communicable disease (NCD) globally, almost doubling in cases since 1980. It is a chronic illness that develops either when the pancreas are not able to generate sufficient insulin or when the body does not utilize the insulin produced effectively
+
+Can you build a machine learning model to accurately predict whether or not the patients in the dataset have diabetes or not? 
+
+This problem is a classification problem. In this problem, a classifier is built that can be trained using the given dataset and can be used to predict diabetes class from a given input dataset.
+The chosen to use AutoML algorithm which is Autogluon. AutoGluon automates machine learning tasks enabling you to easily achieve strong predictive performance in your applications. With just a few lines of code, you can train and deploy high-accuracy machine learning and deep learning models on image, text, time series, and tabular data [@auto].
 
 ## Metrics
 
@@ -86,8 +91,8 @@ Building and visualizing the ROC curve could be used to measure classification a
 
 # Analysis
 
-Data was stored in AWS S3 cloud service for training and evaluation of the model.
-
+Data was stored in AWS S3 cloud service for training and evaluation of the model. The data is in csv format. This dataset is originally from the National Institute of Diabetes and Digestive and Kidney Diseases.
+The datasets consists of several medical predictor variables and one target variable, Outcome. Predictor variables includes the number of pregnancies the patient has had, their BMI, insulin level, age, and so on[@ehr].
 
 \begin{lstlisting}[language=python]
 train_file = "train.csv"
@@ -177,12 +182,39 @@ Figure 5 shows the violin plots where the outcome is 0
 ![False Diabetes](falsediab.jpg)
 
 
-
 ## Algorithms and Techniques
 
 AutoGluon automates machine learning tasks enabling you to easily achieve strong predictive performance in your applications. With just a few lines of code, you can train and deploy high-accuracy machine learning and deep learning models on image, text, time series, and tabular data.
 
 AutoGluon enables easy-to-use and easy-to-extend AutoML with a focus on automated stack ensembling, deep learning, and real-world applications spanning image, text, and tabular data. [@auto]
+
+## Benchmark
+The benchmark used was DecisionTreeClassifier algorithm
+
+\begin{lstlisting}[language=python]
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
+from sklearn import tree
+
+X=df[df.columns[0:-1]]
+Y=df[df.columns[-1]]
+
+
+X_train,X_test,y_train,y_test = train_test_split(X,Y,stratify=Y,random_state=42)
+clf = DecisionTreeClassifier(max_depth=4,random_state=0)
+clf.fit(X_train,y_train)
+print("Accuracy on training set: {:.3f}".format(clf.score(X_train,y_train)))
+print("Accuracy on test set: {:.3f}".format(clf.score(X_test,y_test)))
+
+\end{lstlisting}
+
+### Why use a decision tree?
+- The advantages of using a decision tree are that:
+
+- They can be easy to interpret (depending on the size of your data and the depth of your tree)
+- They can handle both numeric and categorical data through scikit-learn
+- They can limit the influence of poor predictors in your model
+
 
 # Methodology 
 
@@ -254,6 +286,13 @@ predictor = TabularPredictor(label='Outcome', eval_metric='roc_auc',
                                   presets=['best_quality',
                                   'optimize_for_deployment'],)
 \end{lstlisting}
+
+## Refinement and Improvement
+### Regularisation
+### Dropout
+### Early stop
+### Prunning the model
+### Fine-tuning hyperparamters
 
 # Results
 
