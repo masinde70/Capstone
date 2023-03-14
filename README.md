@@ -1,3 +1,5 @@
+# EHR Diabetes
+
 Electronic Health records or Electronic Medical Records data is the data
 being collected when we see a doctor, pick up a prescription at the
 pharmacy, or even from a visit to the dentist.
