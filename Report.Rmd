@@ -320,13 +320,9 @@ Evaluations on test data:
 
 # Conclusion
 
-AutoML frameworks offer an enticing alternative. For the
-novice, they remove many of the barriers of deploying high
-performance ML models. For the expert, they offer the
+AutoML frameworks offer an enticing alternative. For the novice, they remove many of the barriers of deploying high performance ML models. For the expert, they offer the
 potential of implementing best ML practices only once (including strategies for model selection, ensembling, hyperparameter tuning, feature engineering, data preprocessing,
-data splitting, etc.), and then being able to repeatedly deploy
-them. This allows experts to scale their knowledge to many
-problems without the need for frequent manual intervention
+data splitting, etc.), and then being able to repeatedly deploy them. This allows experts to scale their knowledge to many problems without the need for frequent manual intervention
 
 \newpage
 
