@@ -206,6 +206,9 @@ clf.fit(X_train,y_train)
 print("Accuracy on training set: {:.3f}".format(clf.score(X_train,y_train)))
 print("Accuracy on test set: {:.3f}".format(clf.score(X_test,y_test)))
 
+Accuracy on training set: 0.818
+Accuracy on test set: 0.766
+
 \end{lstlisting}
 
 ### Why use a decision tree?
@@ -287,17 +290,62 @@ predictor = TabularPredictor(label='Outcome', eval_metric='roc_auc',
                                   'optimize_for_deployment'],)
 \end{lstlisting}
 
-## Refinement and Improvement
-### Regularisation
-### Dropout
-### Early stop
-### Prunning the model
+```
+                    model  score_val  pred_time_val    fit_time  pred_time_val_marginal  fit_time_marginal  stack_level  can_infer  fit_order
+0     WeightedEnsemble_L2   0.849699       0.947987  235.299451                0.000524           0.249235            2       True          4
+1       LightGBMXT_BAG_L1   0.848956       0.128012   40.415414                0.128012          40.415414            1       True          1
+2  NeuralNetFastAI_BAG_L1   0.831127       0.355836  100.760741                0.355836         100.760741            1       True          2
+3   NeuralNetTorch_BAG_L1   0.830445       0.463615   93.874062                0.463615          93.874062            1       True          3
+
+model	score_val	pred_time_val	fit_time	pred_time_val_marginal	fit_time_marginal	stack_level	can_infer	fit_order
+0	WeightedEnsemble_L2	0.849699	0.947987	235.299451	0.000524	0.249235	2	True	4
+1	LightGBMXT_BAG_L1	0.848956	0.128012	40.415414	0.128012	40.415414	1	True	1
+2	NeuralNetFastAI_BAG_L1	0.831127	0.355836	100.760741	0.355836	100.760741	1	True	2
+3	NeuralNetTorch_BAG_L1	0.830445	0.463615	93.874062	0.463615	93.874062	1	True	3
+
+```
+![Leaderboard](leaderboard.jpg)
+
+## Refinement 
+
+The refinement was to tune the hyperparameters and predict using one model and it was done two times. The aim was to observe the performance of prediction.
+
 ### Fine-tuning hyperparamters
+The finetuning of the parameters set to 'very_light' as the code snipet shows below.
+\begin{lstlisting}[language=python]
+%%time
+
+predictor = TabularPredictor(label='Outcome', 
+                             eval_metric='roc_auc',
+                             ).fit(train_data=train_s3_path,
+                                  time_limit=600,
+                                  presets=['best_quality', 'optimize_for_deployment'],
+                                  hyperparameters='very_light',
+                                  )
+\end{lstlisting}
+
+There was not much improvement after hyperparameter tuning as the snipet shows the model performance.
+```
+                     model  score_val  pred_time_val    fit_time  pred_time_val_marginal  fit_time_marginal  stack_level  can_infer  fit_order
+0     WeightedEnsemble_L2   0.849699       0.947987  235.299451                0.000524           0.249235            2       True          4
+1       LightGBMXT_BAG_L1   0.848956       0.128012   40.415414                0.128012          40.415414            1       True          1
+2  NeuralNetFastAI_BAG_L1   0.831127       0.355836  100.760741                0.355836         100.760741            1       True          2
+3   NeuralNetTorch_BAG_L1   0.830445       0.463615   93.874062                0.463615          93.874062            1       True          3
+
+model	score_val	pred_time_val	fit_time	pred_time_val_marginal	fit_time_marginal	stack_level	can_infer	fit_order
+0	WeightedEnsemble_L2	0.849699	0.947987	235.299451	0.000524	0.249235	2	True	4
+1	LightGBMXT_BAG_L1	0.848956	0.128012	40.415414	0.128012	40.415414	1	True	1
+2	NeuralNetFastAI_BAG_L1	0.831127	0.355836	100.760741	0.355836	100.760741	1	True	2
+3	NeuralNetTorch_BAG_L1	0.830445	0.463615	93.874062	0.463615	93.874062	1	True	3
+```
+
+![Leaderboard after tuning hyperparameters](leaderboard_hyper_tune.jpg)
+
 
 # Results
 
 The results of Autogluon training can be seen in the summary below.
-\begin{lstlisting}[language=python]
+```
 
 predictor.fit_summary(show_plot=True)
 
@@ -320,14 +368,14 @@ Feature Metadata (Processed):
 Plot summary of models saved to file: AutogluonModels/ag-20230310_110459/SummaryOfModels.html
 *** End of fit() summary ***
 
-\end{lstlisting}
+```
 
 
 ## Model Evaluation
 
 The model was evaluated by using predctor.evaluate command which is a built in command from the autogluon model. The result of the execution is shown in the script below.
 
-\begin{lstlisting}[language=python]
+```
 predictor.evaluate(test_s3_path)
 
 Loaded data from: s3://sagemaker-us-east-1-495962688195/sagemaker/autogluon-tabular/data/test.csv | Columns = 9 / 9 | Rows = 230 -> 230
@@ -349,7 +397,7 @@ Evaluations on test data:
  'f1': 0.5735294117647058,
  'precision': 0.6842105263157895,
  'recall': 0.4936708860759494}
-\end{lstlisting}
+```
 
 - The roc-auc is 82 percent there is diabetes.In machine learning, we use ROC Curves to analyze the predictive power of a classifier: they provide a visual way to observe how changes in our model’s classification thresholds affect our model’s performance.
 
@@ -359,14 +407,27 @@ Evaluations on test data:
 
 # Conclusion
 
-AutoML frameworks offer an enticing alternative. For the
-novice, they remove many of the barriers of deploying high
-performance ML models. For the expert, they offer the
-potential of implementing best ML practices only once (including strategies for model selection, ensembling, hyperparameter tuning, feature engineering, data preprocessing,
-data splitting, etc.), and then being able to repeatedly deploy
-them. This allows experts to scale their knowledge to many
-problems without the need for frequent manual intervention
+AutoML frameworks offer an enticing alternative. For the novice, they remove many of the barriers of deploying high performance ML models. For the expert, they offer the potential of implementing best ML practices only once (including strategies for model selection, ensembling, hyperparameter tuning, feature engineering, data preprocessing, data splitting, etc.), and then being able to repeatedly deploy them. This allows experts to scale their knowledge to many problems without the need for frequent manual intervention.
 
+## Reflection
+
+The entire end-to-end problem solution can be summarized as the following :
+
+1.  A challenge problem and an available public dataset were found.
+2.  A suitable metric was found and implemented.
+3.  The data was downloaded and split into training, testing sets.
+4.  The data was prepared and preprocessed to be used as input for the classification model.
+5.  The solution model classifier was tested on unseen dataset.
+
+The challenging aspect of the project was the selection ECR AWS services which was abandoned due to the lack of support
+
+
+## Improvement
+
+For the improvement of our solution model, my suggestions are the following :
+
+1.  Allowing the model to  have visual explainable for interplatability, ofcourse there is shapley values but its only for ECR(built in docker containers AWS). I say this since I tried to use ECR services and failed.
+2.  Another possible improvement is collecting a larger dataset of landmarks, training the model on a larger amount data, but yeah again it is challenging to EHR data.
 \newpage
 
 # References

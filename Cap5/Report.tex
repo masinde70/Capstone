@@ -426,6 +426,9 @@ clf.fit(X_train,y_train)
 print("Accuracy on training set: {:.3f}".format(clf.score(X_train,y_train)))
 print("Accuracy on test set: {:.3f}".format(clf.score(X_test,y_test)))
 
+Accuracy on training set: 0.818
+Accuracy on test set: 0.766
+
 \end{lstlisting}
 
 \hypertarget{why-use-a-decision-tree}{%
@@ -523,32 +526,81 @@ predictor = TabularPredictor(label='Outcome', eval_metric='roc_auc',
                                   'optimize_for_deployment'],)
 \end{lstlisting}
 
-\hypertarget{refinement-and-improvement}{%
-\subsection{Refinement and
-Improvement}\label{refinement-and-improvement}}
+\begin{verbatim}
+                    model  score_val  pred_time_val    fit_time  pred_time_val_marginal  fit_time_marginal  stack_level  can_infer  fit_order
+0     WeightedEnsemble_L2   0.849699       0.947987  235.299451                0.000524           0.249235            2       True          4
+1       LightGBMXT_BAG_L1   0.848956       0.128012   40.415414                0.128012          40.415414            1       True          1
+2  NeuralNetFastAI_BAG_L1   0.831127       0.355836  100.760741                0.355836         100.760741            1       True          2
+3   NeuralNetTorch_BAG_L1   0.830445       0.463615   93.874062                0.463615          93.874062            1       True          3
 
-\hypertarget{regularisation}{%
-\subsubsection{Regularisation}\label{regularisation}}
+model   score_val   pred_time_val   fit_time    pred_time_val_marginal  fit_time_marginal   stack_level can_infer   fit_order
+0   WeightedEnsemble_L2 0.849699    0.947987    235.299451  0.000524    0.249235    2   True    4
+1   LightGBMXT_BAG_L1   0.848956    0.128012    40.415414   0.128012    40.415414   1   True    1
+2   NeuralNetFastAI_BAG_L1  0.831127    0.355836    100.760741  0.355836    100.760741  1   True    2
+3   NeuralNetTorch_BAG_L1   0.830445    0.463615    93.874062   0.463615    93.874062   1   True    3
+\end{verbatim}
 
-\hypertarget{dropout}{%
-\subsubsection{Dropout}\label{dropout}}
+\begin{figure}
+\centering
+\includegraphics{leaderboard.jpg}
+\caption{Leaderboard}
+\end{figure}
 
-\hypertarget{early-stop}{%
-\subsubsection{Early stop}\label{early-stop}}
+\hypertarget{refinement}{%
+\subsection{Refinement}\label{refinement}}
 
-\hypertarget{prunning-the-model}{%
-\subsubsection{Prunning the model}\label{prunning-the-model}}
+The refinement was to tune the hyperparameters and predict using one
+model and it was done two times. The aim was to observe the performance
+of prediction.
 
 \hypertarget{fine-tuning-hyperparamters}{%
 \subsubsection{Fine-tuning
 hyperparamters}\label{fine-tuning-hyperparamters}}
+
+The finetuning of the parameters set to `very\_light' as the code snipet
+shows below.
+
+\begin{lstlisting}[language=python]
+%%time
+
+predictor = TabularPredictor(label='Outcome', 
+                             eval_metric='roc_auc',
+                             ).fit(train_data=train_s3_path,
+                                  time_limit=600,
+                                  presets=['best_quality', 'optimize_for_deployment'],
+                                  hyperparameters='very_light',
+                                  )
+\end{lstlisting}
+
+There was not much improvement after hyperparameter tuning as the snipet
+shows the model performance.
+
+\begin{verbatim}
+                     model  score_val  pred_time_val    fit_time  pred_time_val_marginal  fit_time_marginal  stack_level  can_infer  fit_order
+0     WeightedEnsemble_L2   0.849699       0.947987  235.299451                0.000524           0.249235            2       True          4
+1       LightGBMXT_BAG_L1   0.848956       0.128012   40.415414                0.128012          40.415414            1       True          1
+2  NeuralNetFastAI_BAG_L1   0.831127       0.355836  100.760741                0.355836         100.760741            1       True          2
+3   NeuralNetTorch_BAG_L1   0.830445       0.463615   93.874062                0.463615          93.874062            1       True          3
+
+model   score_val   pred_time_val   fit_time    pred_time_val_marginal  fit_time_marginal   stack_level can_infer   fit_order
+0   WeightedEnsemble_L2 0.849699    0.947987    235.299451  0.000524    0.249235    2   True    4
+1   LightGBMXT_BAG_L1   0.848956    0.128012    40.415414   0.128012    40.415414   1   True    1
+2   NeuralNetFastAI_BAG_L1  0.831127    0.355836    100.760741  0.355836    100.760741  1   True    2
+3   NeuralNetTorch_BAG_L1   0.830445    0.463615    93.874062   0.463615    93.874062   1   True    3
+\end{verbatim}
+
+\begin{figure}
+\centering
+\includegraphics{leaderboard_hyper_tune.jpg}
+\caption{Leaderboard after tuning hyperparameters}
+\end{figure}
 
 \hypertarget{results}{%
 \section{Results}\label{results}}
 
 The results of Autogluon training can be seen in the summary below.
 
-\begin{lstlisting}[language=python]
+\begin{verbatim}
 
 predictor.fit_summary(show_plot=True)
 
@@ -570,8 +622,7 @@ Feature Metadata (Processed):
 ('int', [])   : 6 | ['Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', ...]
 Plot summary of models saved to file: AutogluonModels/ag-20230310_110459/SummaryOfModels.html
 *** End of fit() summary ***
-
-\end{lstlisting}
+\end{verbatim}
 
 \hypertarget{model-evaluation}{%
 \subsection{Model Evaluation}\label{model-evaluation}}
@@ -580,7 +631,7 @@ The model was evaluated by using predctor.evaluate command which is a
 built in command from the autogluon model. The result of the execution
 is shown in the script below.
 
-\begin{lstlisting}[language=python]
+\begin{verbatim}
 predictor.evaluate(test_s3_path)
 
 Loaded data from: s3://sagemaker-us-east-1-495962688195/sagemaker/autogluon-tabular/data/test.csv | Columns = 9 / 9 | Rows = 230 -> 230
@@ -602,7 +653,7 @@ Evaluations on test data:
  'f1': 0.5735294117647058,
  'precision': 0.6842105263157895,
  'recall': 0.4936708860759494}
-\end{lstlisting}
+\end{verbatim}
 
 \begin{itemize}
 \item
@@ -630,9 +681,52 @@ only once (including strategies for model selection, ensembling,
 hyperparameter tuning, feature engineering, data preprocessing, data
 splitting, etc.), and then being able to repeatedly deploy them. This
 allows experts to scale their knowledge to many problems without the
-need for frequent manual intervention
+need for frequent manual intervention.
 
-\newpage
+\hypertarget{reflection}{%
+\subsection{Reflection}\label{reflection}}
+
+The entire end-to-end problem solution can be summarized as the
+following :
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  A challenge problem and an available public dataset were found.
+\item
+  A suitable metric was found and implemented.
+\item
+  The data was downloaded and split into training, testing sets.
+\item
+  The data was prepared and preprocessed to be used as input for the
+  classification model.
+\item
+  The solution model classifier was tested on unseen dataset.
+\end{enumerate}
+
+The challenging aspect of the project was the selection ECR AWS services
+which was abandoned due to the lack of support
+
+\hypertarget{improvement}{%
+\subsection{Improvement}\label{improvement}}
+
+For the improvement of our solution model, my suggestions are the
+following :
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Allowing the model to have visual explainable for interplatability,
+  ofcourse there is shapley values but its only for ECR(built in docker
+  containers AWS). I say this since I tried to use ECR services and
+  failed.
+\item
+  Another possible improvement is collecting a larger dataset of
+  landmarks, training the model on a larger amount data, but yeah again
+  it is challenging to EHR data. \newpage
+\end{enumerate}
 
 \hypertarget{references}{%
 \section*{References}\label{references}}
