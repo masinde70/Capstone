@@ -154,8 +154,24 @@ on\textsuperscript{\protect\hyperlink{ref-ehr}{1}}.
 \hypertarget{problem-statement}{%
 \subsection{Problem Statement}\label{problem-statement}}
 
+Diabetes mellitus, or simply diabetes, is a leading non-communicable
+disease (NCD) globally, almost doubling in cases since 1980. It is a
+chronic illness that develops either when the pancreas are not able to
+generate sufficient insulin or when the body does not utilize the
+insulin produced effectively
+
 Can you build a machine learning model to accurately predict whether or
 not the patients in the dataset have diabetes or not?
+
+This problem is a classification problem. In this problem, a classifier
+is built that can be trained using the given dataset and can be used to
+predict diabetes class from a given input dataset. The chosen to use
+AutoML algorithm which is Autogluon. AutoGluon automates machine
+learning tasks enabling you to easily achieve strong predictive
+performance in your applications. With just a few lines of code, you can
+train and deploy high-accuracy machine learning and deep learning models
+on image, text, time series, and tabular
+data\textsuperscript{\protect\hyperlink{ref-auto}{2}}.
 
 \hypertarget{metrics}{%
 \subsection{Metrics}\label{metrics}}
@@ -171,13 +187,13 @@ classes.
 The AUC has an important statistical property: the AUC of a classifier
 is equivalent to the probability that the classifier will rank a
 randomly chosen positive instance higher than a randomly chosen negative
-instance.\textsuperscript{\protect\hyperlink{ref-volo}{2}}
+instance.\textsuperscript{\protect\hyperlink{ref-volo}{3}}
 
 AUC is the Area Under the ROC Curve. The best AUC = 1 for a model that
 ranks all the objects right (all objects with class 1 are assigned
 higher probabilities then objects of class 0). AUC for the `bad'
 classifier which is working as random guessing is equal to
-0.5.\textsuperscript{\protect\hyperlink{ref-volo}{2}}
+0.5.\textsuperscript{\protect\hyperlink{ref-volo}{3}}
 
 The ROC curve shows the model's ability to distinguishing between
 classes.
@@ -194,13 +210,18 @@ Building and visualizing the ROC curve could be used to measure
 classification algorithm performance with different probability
 boundaries and select the probability boundary required to achieve the
 specified false-positive or false-negative
-rate.\textsuperscript{\protect\hyperlink{ref-volo}{2}}
+rate.\textsuperscript{\protect\hyperlink{ref-volo}{3}}
 
 \hypertarget{analysis}{%
 \section{Analysis}\label{analysis}}
 
 Data was stored in AWS S3 cloud service for training and evaluation of
-the model.
+the model. The data is in csv format. This dataset is originally from
+the National Institute of Diabetes and Digestive and Kidney Diseases.
+The datasets consists of several medical predictor variables and one
+target variable, Outcome. Predictor variables includes the number of
+pregnancies the patient has had, their BMI, insulin level, age, and so
+on\textsuperscript{\protect\hyperlink{ref-ehr}{1}}.
 
 \begin{lstlisting}[language=python]
 train_file = "train.csv"
@@ -340,7 +361,7 @@ A violin plot is a hybrid of a box plot and a kernel density plot, which
 shows peaks in the data. It is used to visualize the distribution of
 numerical data. Unlike a box plot that can only show summary statistics,
 violin plots depict summary statistics and the density of each
-variable.\textsuperscript{\protect\hyperlink{ref-joel}{3}}
+variable.\textsuperscript{\protect\hyperlink{ref-joel}{4}}
 
 To understand data we have to plot data using violin visualization. This
 plotting shows where the outcome of diabetes was 1. This shows the
@@ -383,7 +404,47 @@ tabular data.
 AutoGluon enables easy-to-use and easy-to-extend AutoML with a focus on
 automated stack ensembling, deep learning, and real-world applications
 spanning image, text, and tabular
-data.\textsuperscript{\protect\hyperlink{ref-auto}{4}}
+data.\textsuperscript{\protect\hyperlink{ref-auto}{2}}
+
+\hypertarget{benchmark}{%
+\subsection{Benchmark}\label{benchmark}}
+
+The benchmark used was DecisionTreeClassifier algorithm
+
+\begin{lstlisting}[language=python]
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
+from sklearn import tree
+
+X=df[df.columns[0:-1]]
+Y=df[df.columns[-1]]
+
+
+X_train,X_test,y_train,y_test = train_test_split(X,Y,stratify=Y,random_state=42)
+clf = DecisionTreeClassifier(max_depth=4,random_state=0)
+clf.fit(X_train,y_train)
+print("Accuracy on training set: {:.3f}".format(clf.score(X_train,y_train)))
+print("Accuracy on test set: {:.3f}".format(clf.score(X_test,y_test)))
+
+Accuracy on training set: 0.818
+Accuracy on test set: 0.766
+
+\end{lstlisting}
+
+\hypertarget{why-use-a-decision-tree}{%
+\subsubsection{Why use a decision tree?}\label{why-use-a-decision-tree}}
+
+\begin{itemize}
+\item
+  The advantages of using a decision tree are that:
+\item
+  They can be easy to interpret (depending on the size of your data and
+  the depth of your tree)
+\item
+  They can handle both numeric and categorical data through scikit-learn
+\item
+  They can limit the influence of poor predictors in your model
+\end{itemize}
 
 \hypertarget{methodology}{%
 \section{Methodology}\label{methodology}}
@@ -453,7 +514,7 @@ client = session.boto_session.client("sts", region_name=region, endpoint_url=uti
 \subsubsection{Training}\label{training}}
 
 The model was trained using AUTOML
-autogluon\textsuperscript{\protect\hyperlink{ref-auto}{4}}
+autogluon\textsuperscript{\protect\hyperlink{ref-auto}{2}}
 
 \begin{lstlisting}[language=python]
 %%time
@@ -465,12 +526,81 @@ predictor = TabularPredictor(label='Outcome', eval_metric='roc_auc',
                                   'optimize_for_deployment'],)
 \end{lstlisting}
 
+\begin{verbatim}
+                    model  score_val  pred_time_val    fit_time  pred_time_val_marginal  fit_time_marginal  stack_level  can_infer  fit_order
+0     WeightedEnsemble_L2   0.849699       0.947987  235.299451                0.000524           0.249235            2       True          4
+1       LightGBMXT_BAG_L1   0.848956       0.128012   40.415414                0.128012          40.415414            1       True          1
+2  NeuralNetFastAI_BAG_L1   0.831127       0.355836  100.760741                0.355836         100.760741            1       True          2
+3   NeuralNetTorch_BAG_L1   0.830445       0.463615   93.874062                0.463615          93.874062            1       True          3
+
+model   score_val   pred_time_val   fit_time    pred_time_val_marginal  fit_time_marginal   stack_level can_infer   fit_order
+0   WeightedEnsemble_L2 0.849699    0.947987    235.299451  0.000524    0.249235    2   True    4
+1   LightGBMXT_BAG_L1   0.848956    0.128012    40.415414   0.128012    40.415414   1   True    1
+2   NeuralNetFastAI_BAG_L1  0.831127    0.355836    100.760741  0.355836    100.760741  1   True    2
+3   NeuralNetTorch_BAG_L1   0.830445    0.463615    93.874062   0.463615    93.874062   1   True    3
+\end{verbatim}
+
+\begin{figure}
+\centering
+\includegraphics{leaderboard.jpg}
+\caption{Leaderboard}
+\end{figure}
+
+\hypertarget{refinement}{%
+\subsection{Refinement}\label{refinement}}
+
+The refinement was to tune the hyperparameters and predict using one
+model and it was done two times. The aim was to observe the performance
+of prediction.
+
+\hypertarget{fine-tuning-hyperparamters}{%
+\subsubsection{Fine-tuning
+hyperparamters}\label{fine-tuning-hyperparamters}}
+
+The finetuning of the parameters set to `very\_light' as the code snipet
+shows below.
+
+\begin{lstlisting}[language=python]
+%%time
+
+predictor = TabularPredictor(label='Outcome', 
+                             eval_metric='roc_auc',
+                             ).fit(train_data=train_s3_path,
+                                  time_limit=600,
+                                  presets=['best_quality', 'optimize_for_deployment'],
+                                  hyperparameters='very_light',
+                                  )
+\end{lstlisting}
+
+There was not much improvement after hyperparameter tuning as the snipet
+shows the model performance.
+
+\begin{verbatim}
+                     model  score_val  pred_time_val    fit_time  pred_time_val_marginal  fit_time_marginal  stack_level  can_infer  fit_order
+0     WeightedEnsemble_L2   0.849699       0.947987  235.299451                0.000524           0.249235            2       True          4
+1       LightGBMXT_BAG_L1   0.848956       0.128012   40.415414                0.128012          40.415414            1       True          1
+2  NeuralNetFastAI_BAG_L1   0.831127       0.355836  100.760741                0.355836         100.760741            1       True          2
+3   NeuralNetTorch_BAG_L1   0.830445       0.463615   93.874062                0.463615          93.874062            1       True          3
+
+model   score_val   pred_time_val   fit_time    pred_time_val_marginal  fit_time_marginal   stack_level can_infer   fit_order
+0   WeightedEnsemble_L2 0.849699    0.947987    235.299451  0.000524    0.249235    2   True    4
+1   LightGBMXT_BAG_L1   0.848956    0.128012    40.415414   0.128012    40.415414   1   True    1
+2   NeuralNetFastAI_BAG_L1  0.831127    0.355836    100.760741  0.355836    100.760741  1   True    2
+3   NeuralNetTorch_BAG_L1   0.830445    0.463615    93.874062   0.463615    93.874062   1   True    3
+\end{verbatim}
+
+\begin{figure}
+\centering
+\includegraphics{leaderboard_hyper_tune.jpg}
+\caption{Leaderboard after tuning hyperparameters}
+\end{figure}
+
 \hypertarget{results}{%
 \section{Results}\label{results}}
 
 The results of Autogluon training can be seen in the summary below.
 
-\begin{lstlisting}[language=python]
+\begin{verbatim}
 
 predictor.fit_summary(show_plot=True)
 
@@ -492,8 +622,7 @@ Feature Metadata (Processed):
 ('int', [])   : 6 | ['Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', ...]
 Plot summary of models saved to file: AutogluonModels/ag-20230310_110459/SummaryOfModels.html
 *** End of fit() summary ***
-
-\end{lstlisting}
+\end{verbatim}
 
 \hypertarget{model-evaluation}{%
 \subsection{Model Evaluation}\label{model-evaluation}}
@@ -502,7 +631,7 @@ The model was evaluated by using predctor.evaluate command which is a
 built in command from the autogluon model. The result of the execution
 is shown in the script below.
 
-\begin{lstlisting}[language=python]
+\begin{verbatim}
 predictor.evaluate(test_s3_path)
 
 Loaded data from: s3://sagemaker-us-east-1-495962688195/sagemaker/autogluon-tabular/data/test.csv | Columns = 9 / 9 | Rows = 230 -> 230
@@ -524,7 +653,7 @@ Evaluations on test data:
  'f1': 0.5735294117647058,
  'precision': 0.6842105263157895,
  'recall': 0.4936708860759494}
-\end{lstlisting}
+\end{verbatim}
 
 \begin{itemize}
 \item
@@ -552,9 +681,52 @@ only once (including strategies for model selection, ensembling,
 hyperparameter tuning, feature engineering, data preprocessing, data
 splitting, etc.), and then being able to repeatedly deploy them. This
 allows experts to scale their knowledge to many problems without the
-need for frequent manual intervention
+need for frequent manual intervention.
 
-\newpage
+\hypertarget{reflection}{%
+\subsection{Reflection}\label{reflection}}
+
+The entire end-to-end problem solution can be summarized as the
+following :
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  A challenge problem and an available public dataset were found.
+\item
+  A suitable metric was found and implemented.
+\item
+  The data was downloaded and split into training, testing sets.
+\item
+  The data was prepared and preprocessed to be used as input for the
+  classification model.
+\item
+  The solution model classifier was tested on unseen dataset.
+\end{enumerate}
+
+The challenging aspect of the project was the selection ECR AWS services
+which was abandoned due to the lack of support
+
+\hypertarget{improvement}{%
+\subsection{Improvement}\label{improvement}}
+
+For the improvement of our solution model, my suggestions are the
+following :
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Allowing the model to have visual explainable for interplatability,
+  ofcourse there is shapley values but its only for ECR(built in docker
+  containers AWS). I say this since I tried to use ECR services and
+  failed.
+\item
+  Another possible improvement is collecting a larger dataset of
+  landmarks, training the model on a larger amount data, but yeah again
+  it is challenging to EHR data. \newpage
+\end{enumerate}
 
 \hypertarget{references}{%
 \section*{References}\label{references}}
@@ -568,24 +740,24 @@ need for frequent manual intervention
 \href{https://kaggle.com/competitions/hw1-machine-learning-for-ehr}{HW1
 machine learning for EHR}. (2023).}
 
-\leavevmode\vadjust pre{\hypertarget{ref-volo}{}}%
+\leavevmode\vadjust pre{\hypertarget{ref-auto}{}}%
 \CSLLeftMargin{2. }%
+\CSLRightInline{Autogluon.
+\href{https://auto.gluon.ai/stable/index.html\%20(Accessed:\%2013\%20March\%202023).}{AutoML
+for text, image, time series, and tabular data --- AutoGluon
+documentation 0.7.0 documentation (2023).}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-volo}{}}%
+\CSLLeftMargin{3. }%
 \CSLRightInline{Volodkevich, A.
 \href{\%20https://towardsdatascience.com/auc-and-its-implementation-in-catboost-6bc740c01f98\%20(Accessed:\%20March\%2013,\%202023)}{AUC
 and its implementation in CatBoost, medium. Towards data science.}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-joel}{}}%
-\CSLLeftMargin{3. }%
+\CSLLeftMargin{4. }%
 \CSLRightInline{Carron, J.
 \href{https://mode.com/blog/violin-plot-examples/\%20(Accessed:\%20March\%2013,\%202023)}{Violin
 plots 101: Visualizing distribution and probability density}.}
-
-\leavevmode\vadjust pre{\hypertarget{ref-auto}{}}%
-\CSLLeftMargin{4. }%
-\CSLRightInline{Autogluon.
-\href{https://auto.gluon.ai/stable/index.html\%20(Accessed:\%2013\%20March\%202023).}{AutoML
-for text, image, time series, and tabular data --- AutoGluon
-documentation 0.7.0 documentation (2023).}}
 
 \end{CSLReferences}
 
